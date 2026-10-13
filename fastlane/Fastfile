@@ -1,0 +1,47 @@
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:mac)
+
+platform :mac do
+  desc "Bump build number, commit and push"
+  lane :bump do
+    # Ensure working directory is clean
+    ensure_git_status_clean
+
+    # Increment build number
+    new_build_number = increment_build_number
+    
+    # Commit version bump
+    git_commit(
+      path: ["./WhisperType.xcodeproj/project.pbxproj"],
+      message: "Bump build number to #{new_build_number}"
+    )
+    
+    # Push to origin
+    push_to_git_remote
+  end
+
+  desc "Bump patch version and build number, commit and push"
+  lane :bump_patch do
+    # Ensure working directory is clean
+    ensure_git_status_clean
+
+    # Increment patch version in xcodeproj (updates MARKETING_VERSION)
+    new_version_number = increment_version_number_in_xcodeproj(
+      bump_type: "patch"
+    )
+
+    # Increment build number in xcodeproj (updates CURRENT_PROJECT_VERSION)
+    new_build_number = increment_build_number_in_xcodeproj
+
+    # Commit version bump
+    git_commit(
+      path: ["./WhisperType.xcodeproj/project.pbxproj"],
+      message: "Bump patch version to #{new_version_number} (build #{new_build_number})"
+    )
+
+    # Push to origin
+    push_to_git_remote
+  end
+end
