@@ -4,6 +4,10 @@ Dictation for macOS. Press a keyboard shortcut, speak, press it again, and Whisp
 
 WhisperType is free and open source. It transcribes with [Groq](https://groq.com)'s hosted Whisper model, using your own Groq API key, so your recordings go straight from your Mac to Groq and nowhere else.
 
+### [⬇️ Download WhisperType for macOS](https://github.com/whispermemos/whispertype/releases/latest/download/WhisperType.dmg)
+
+Requires macOS 14.6 or later. Open the DMG and drag WhisperType into Applications. You'll also need a free [Groq API key](https://console.groq.com/keys).
+
 ## Features
 
 - Global shortcut to start and stop recording, from any app
@@ -36,6 +40,10 @@ On first launch WhisperType walks you through:
 Debug builds use the bundle ID `com.whispermemos.WhisperType.debug`, so they can be installed next to a release build.
 
 Swift packages resolve automatically. Voice activity detection uses [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) with the Silero VAD model; both are checked into the repo (`sherpa-onnx.xcframework`, `Models/`).
+
+### Releases
+
+`scripts/build-dmg.sh` archives the Release scheme, signs it with a Developer ID certificate, notarizes and staples both the app and the DMG, and writes `build/release/WhisperType.dmg`. Attach that file to a GitHub release and the download link above picks it up. The script's header explains the one-time notarization setup.
 
 ### Version bumps
 
