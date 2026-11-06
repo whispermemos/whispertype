@@ -7,6 +7,7 @@ struct PreferencesWindow: View {
         case spelling
         case history
         case apiKey
+        case updates
     }
 
     @State private var selectedTab: Tab = .general
@@ -42,6 +43,12 @@ struct PreferencesWindow: View {
                     Label("API Key", image: "apikey")
                 }
                 .tag(Tab.apiKey)
+
+            UpdatesPreferencesView(updates: globalUpdateManager)
+                .tabItem {
+                    Label("Updates", systemImage: "arrow.triangle.2.circlepath")
+                }
+                .tag(Tab.updates)
         }
         .frame(width: 460, height: 420)
     }

@@ -26,6 +26,7 @@ xcodebuild archive \
     -scheme Release \
     -configuration Release \
     -destination "generic/platform=macOS" \
+    -derivedDataPath build/DerivedData \
     -archivePath "$OUT/WhisperType.xcarchive" \
     -allowProvisioningUpdates \
     -quiet

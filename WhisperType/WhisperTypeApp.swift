@@ -24,6 +24,7 @@ let globalRecordingManager = RecordingManager(
 let globalWindowManager = WindowManager()
 let globalAnimationManager = AnimationManager()
 let globalHistoryManager = HistoryManager()
+let globalUpdateManager = UpdateManager(recordingState: globalRecordingManager.$state.eraseToAnyPublisher())
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var welcomeWindow: NSWindow?
@@ -45,6 +46,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         setupMenuBarIconObserver()
         setupDarkIconObserver()
+        globalUpdateManager.start()
         
         // Always create the welcome window
         createWelcomeWindow()
@@ -53,6 +55,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if !NSApplication.shared.launchedAtLogin {
             showWelcomeWindow()
         }
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard globalUpdateManager.postponeTerminationIfBusy({
+            sender.reply(toApplicationShouldTerminate: true)
+        }) else {
+            return .terminateNow
+        }
+
+        // This also covers staged updates, which can skip Sparkle's relaunch callback.
+        // Finish an active recording so a requested quit can complete on its own.
+        if globalRecordingManager.state == .recording {
+            globalRecordingManager.stopRecording()
+        }
+        return .terminateLater
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -159,6 +176,7 @@ struct WhisperTypeApp: App {
                 Button("About WhisperType") {
                     NSApplication.shared.orderFrontStandardAboutPanel(nil)
                 }
+                CheckForUpdatesButton(updates: globalUpdateManager)
             }
             CommandGroup(replacing: .systemServices) {}
             CommandGroup(replacing: .newItem) {}
@@ -226,6 +244,8 @@ struct MenubarView: View {
                 openSettings()
                 NSApp.activate(ignoringOtherApps: true)
             }
+
+            CheckForUpdatesButton(updates: globalUpdateManager)
 
             Divider()
 

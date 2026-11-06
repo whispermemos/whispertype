@@ -8,5 +8,17 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>SUFeedURL</key>
+	<string>https://whispermemos.github.io/whispertype/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>J4n+S4wZxJQuuY19POv5ZvHlMJqARXKezEEv2yEfTX0=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
+	<key>SURequireSignedFeed</key>
+	<true/>
 </dict>
 </plist>
