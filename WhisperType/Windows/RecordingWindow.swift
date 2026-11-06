@@ -133,7 +133,7 @@ struct RecordingWindowInnerView: View {
         .onChange(of: recordingManager.state) { _, newState in
             // Shrink to a small square while transcribing. The widget keeps this size after
             // hiding, so the next recording widens back out, which we like.
-            withAnimation(.linear(duration: 0.1)) {
+            withAnimation(.linear(duration: 0.075)) {
                 if newState == .transcribing {
                     size = .small
                 } else if newState == .recording || newState == .preparing {
