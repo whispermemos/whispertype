@@ -40,6 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaultsKeys.useDarkIcon: false,
             UserDefaultsKeys.hideFailedSheet: false,
             UserDefaultsKeys.autoPasteText: true,
+            UserDefaultsKeys.wantsReturnAfterPaste: false,
             UserDefaultsKeys.showMenuBarIcon: false,
             UserDefaultsKeys.lowerSystemVolumeWhileRecording: true,
         ])
