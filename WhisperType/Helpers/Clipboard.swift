@@ -74,7 +74,15 @@ func copyAndInsert(_ text: String, shouldPaste: Bool) {
     // Post the events to simulate Command-V
     keyDown.post(tap: .cghidEventTap)
     keyUp.post(tap: .cghidEventTap)
-    
+
+    // Optionally press Return to submit, e.g. send a message in a terminal or chat.
+    // Wait briefly so the target app finishes handling the paste first.
+    if defaults.bool(forKey: UserDefaultsKeys.wantsReturnAfterPaste) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            pressReturn()
+        }
+    }
+
     // Restore clipboard contents after a short delay to ensure paste completes
     // (unless user wants to keep transcription in clipboard)
     let keepTranscriptionInClipboard = defaults.bool(forKey: UserDefaultsKeys.keepTranscriptionInClipboard)
@@ -121,6 +129,19 @@ func copyAndInsert(_ text: String, shouldPaste: Bool) {
         element, kAXValueAttribute as CFString, text as CFTypeRef)
     guard error == .success else {
         return
+    }
+}
+
+/// Sends a plain Return. Modifiers are cleared explicitly, otherwise macOS can attach a
+/// leftover Command from the simulated Cmd-V (or a key still held from the shortcut),
+/// and apps like Rex treat modifier+Return as a shortcut (e.g. split pane).
+private func pressReturn() {
+    let returnKeyCode = CGKeyCode(kVK_Return)
+    for isKeyDown in [true, false] {
+        guard let event = CGEvent(keyboardEventSource: nil, virtualKey: returnKeyCode, keyDown: isKeyDown)
+        else { return }
+        event.flags = []
+        event.post(tap: .cghidEventTap)
     }
 }
 

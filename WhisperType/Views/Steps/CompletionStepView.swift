@@ -6,6 +6,8 @@ struct CompletionStepView: View {
     let onBack: () -> Void
     @AppStorage(UserDefaultsKeys.hasSetup) private var hasSetup = false
     @AppStorage(UserDefaultsKeys.hideFailedSheet) private var hideProcessingFailedSheet = false
+    @AppStorage(UserDefaultsKeys.autoPasteText) private var automaticallyPasteText = true
+    @AppStorage(UserDefaultsKeys.wantsReturnAfterPaste) private var wantsReturnAfterPaste = false
     @Environment(\.dismiss) var dismiss
     @Environment(\.openSettings) var openSettings
     @EnvironmentObject private var recordingManager: RecordingManager
@@ -30,8 +32,12 @@ struct CompletionStepView: View {
             }
             .padding(.horizontal)
 
-            LaunchAtLogin.Toggle()
-                .padding(.vertical)
+            VStack(alignment: .leading, spacing: 8) {
+                LaunchAtLogin.Toggle()
+                Toggle("Press Return after pasting", isOn: $wantsReturnAfterPaste)
+                    .disabled(!automaticallyPasteText)
+            }
+            .padding(.vertical)
 
             Spacer()
             Spacer()

@@ -15,6 +15,7 @@ struct UserDefaultsKeys {
     static let hasSetup = "hasSetup"
     static let autoPasteText = "autoPasteText"
     static let keepTranscriptionInClipboard = "keepTranscriptionInClipboard"
+    static let wantsReturnAfterPaste = "wantsReturnAfterPaste"
     static let manualParagraphs = "manualParagraphs"
     static let useDarkIcon = "useDarkIcon"
     static let historyEntries = "historyEntries"
