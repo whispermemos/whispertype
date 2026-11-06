@@ -1,7 +1,8 @@
 import SwiftUI
 
 /*
- * Lets users control automatic checks and installation through Sparkle's preferences.
+ * Shows the current version and lets users control automatic checks and installation
+ * through Sparkle's preferences.
  * Offers a manual update check and explains when downloaded updates are installed.
  */
 struct UpdatesPreferencesView: View {
@@ -9,6 +10,9 @@ struct UpdatesPreferencesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Text("WhisperType \(Self.version)")
+                .font(.headline)
+
             Toggle("Automatically check for updates", isOn: Binding(
                 get: { updates.wantsAutomaticChecks }, set: { updates.setAutomaticChecks($0) }
             ))
@@ -33,5 +37,13 @@ struct UpdatesPreferencesView: View {
         .disabled(!updates.isEnabled)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding()
+    }
+
+    /// For example "1.0.10 (40)": the marketing version and the build number Sparkle compares.
+    private static var version: String {
+        let info = Bundle.main.infoDictionary
+        let shortVersion = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? "?"
+        return "\(shortVersion) (\(build))"
     }
 }
