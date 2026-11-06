@@ -46,7 +46,7 @@ struct PreferencesWindow: View {
 
             UpdatesPreferencesView(updates: globalUpdateManager)
                 .tabItem {
-                    Label("Updates", systemImage: "arrow.triangle.2.circlepath")
+                    Label("Updates", image: "updates")
                 }
                 .tag(Tab.updates)
         }
