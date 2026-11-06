@@ -4,6 +4,16 @@
 default_platform(:mac)
 
 platform :mac do
+  desc "Build a notarized DMG and signed update feed for review"
+  lane :prepare_release do
+    sh("bundle", "exec", "ruby", "../scripts/release.rb")
+  end
+
+  desc "Build and publish a GitHub release and its Sparkle feed"
+  lane :release do
+    sh("bundle", "exec", "ruby", "../scripts/release.rb", "--publish")
+  end
+
   desc "Bump build number, commit and push"
   lane :bump do
     # Ensure working directory is clean
