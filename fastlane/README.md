@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane mac prepare_release
 ```
 
-Build a notarized DMG and signed update feed for review
+Build the notarized DMG and update feed locally
 
 ### mac release
 
@@ -29,7 +29,7 @@ Build a notarized DMG and signed update feed for review
 [bundle exec] fastlane mac release
 ```
 
-Build and publish a GitHub release and its Sparkle feed
+Publish a GitHub release and its update feed
 
 ### mac bump
 
