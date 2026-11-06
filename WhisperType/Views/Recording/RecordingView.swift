@@ -19,7 +19,7 @@ struct RecordingView: View {
         ZStack {
             Group {
                 if state == .preparing || state == .recording {
-                    SoundwaveView(soundwaveData: recordingManager.soundwaveData)
+                    soundwave
                         .padding(.vertical, 6)
                         .mask(
                             LinearGradient(
@@ -77,6 +77,16 @@ struct RecordingView: View {
         }
     }
     
+    @ViewBuilder
+    private var soundwave: some View {
+        switch SoundwaveStyle.current {
+        case .waves:
+            SoundwaveView(soundwaveData: recordingManager.soundwaveData)
+        case .bars:
+            SpectrumBarsView(spectrumData: recordingManager.spectrumData)
+        }
+    }
+
     private var stateText: String {
         switch state {
         case .preparing:

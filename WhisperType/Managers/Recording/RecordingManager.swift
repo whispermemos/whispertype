@@ -33,6 +33,7 @@ class RecordingManager: ObservableObject {
     // Session
     internal var sessionId: String?
     var soundwaveData = SoundwaveData()
+    let spectrumData = SpectrumData()
     internal var samplesStore = SamplesStore(sampleRate: SAMPLE_RATE)
     private var transcriptStore = TranscriptStore()
     private var durationTimer: Timer?
@@ -195,8 +196,17 @@ class RecordingManager: ObservableObject {
             bufferSize: VAD_FRAME_SIZE
         )
 
-        engine.onVolumeBuffer = { [weak self] buffer in
-            self?.soundwaveData.setBuffer(buffer)
+        // Only feed the visualization that's shown
+        switch SoundwaveStyle.current {
+        case .waves:
+            engine.onVolumeBuffer = { [weak self] buffer in
+                self?.soundwaveData.setBuffer(buffer)
+            }
+        case .bars:
+            spectrumData.reset()
+            engine.onSpectrumBuffer = { [spectrumData] buffer in
+                spectrumData.process(buffer)
+            }
         }
 
         engine.onVadBuffer = { [weak self] buffer in
