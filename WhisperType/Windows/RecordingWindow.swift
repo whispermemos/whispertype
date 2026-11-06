@@ -13,7 +13,7 @@ private func calculateWindowPosition() -> NSPoint {
     return NSPoint(x: x, y: y)
 }
 
-class RecordingWindow: AnimatedWindow {
+class RecordingWindow: NSWindow {
     private var screenObserver: Any?
     
     deinit {
@@ -73,13 +73,10 @@ struct RecordingWindowView: View {
     }
 }
 
-let slowDown = 1.0
-
 struct RecordingWindowInnerView: View {
     @EnvironmentObject var animationManager: AnimationManager
     @EnvironmentObject var recordingManager: RecordingManager
-    @State var isVisible = false
-    
+
     enum WindowSize {
         case full
         case small
@@ -87,38 +84,26 @@ struct RecordingWindowInnerView: View {
 
     enum AnimationStage {
         case hidden
-        case firstStage
-        case fullyShown
+        case halfway
+        case shown
 
         var opacity: Double {
             switch self {
             case .hidden: return 0.1
-            case .firstStage: return 0.4
-            case .fullyShown: return 1
-            }
-        }
-        
-        var contentsOpacity: Double {
-            switch self {
-            case .hidden: return 0
-            case .firstStage: return 0
-            case .fullyShown: return 1
+            case .halfway: return 0.4
+            case .shown: return 1
             }
         }
 
-        var scale: Double {
-            switch self {
-            case .hidden: return 0.5
-            case .firstStage: return 0.7
-            case .fullyShown: return 1
-            }
+        var contentsOpacity: Double {
+            self == .shown ? 1 : 0
         }
 
         var offset: CGFloat {
             switch self {
-            case .hidden: return 40.0
-            case .firstStage: return 10
-            case .fullyShown: return 0
+            case .hidden: return 40
+            case .halfway: return 10
+            case .shown: return 0
             }
         }
     }
@@ -127,66 +112,55 @@ struct RecordingWindowInnerView: View {
     @State var stage: AnimationStage = .hidden
 
     var body: some View {
-        Group {
+        ZStack {
             ZStack {
-                ZStack {
-                    VisualEffectView(material: .fullScreenUI, blendingMode: .withinWindow)
-                    Color.black.opacity(0.8)
-                }
-
-                RecordingView()
-                    .opacity(stage.contentsOpacity)
+                VisualEffectView(material: .fullScreenUI, blendingMode: .withinWindow)
+                Color.black.opacity(0.8)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .frame(
-                width: size == .small ? smallSize : windowWidth,
-                height: size == .small ? smallSize : windowHeight,
-                alignment: .top
-            )
-            .opacity(stage.opacity)
-//            .scaleEffect(stage.scale)
-            .offset(y: stage.offset)
+
+            RecordingView()
+                .opacity(stage.contentsOpacity)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .frame(
+            width: size == .small ? smallSize : windowWidth,
+            height: size == .small ? smallSize : windowHeight,
+            alignment: .top
+        )
+        .opacity(stage.opacity)
+        .offset(y: stage.offset)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .onChange(of: recordingManager.state, { oldValue, newValue in
-            withAnimation(.linear(duration: 0.1 * slowDown)) {
-                if newValue == .transcribing {
+        .onChange(of: recordingManager.state) { _, newState in
+            // Shrink to a small square while transcribing. The widget keeps this size after
+            // hiding, so the next recording widens back out, which we like.
+            withAnimation(.linear(duration: 0.1)) {
+                if newState == .transcribing {
                     size = .small
-                } else if newValue == .recording || newValue == .preparing {
+                } else if newState == .recording || newState == .preparing {
                     size = .full
                 }
             }
-        })
-        .onChange(
-            of: animationManager.isWindowVisible,
-            { oldValue, newValue in
-                if newValue {
-                    // Show animation sequence
-                    stage = .hidden
+        }
+        .onChange(of: animationManager.isWindowVisible) { _, isVisible in
+            if isVisible {
+                // Show instantly, so the widget appears right after the shortcut.
+                stage = .shown
+            } else {
+                hide()
+            }
+        }
+    }
 
-                    // First stage: move up and fade in partially
-                    withAnimation(.linear(duration: 0.07 * slowDown)) {
-                        stage = .firstStage
-                    } completion: {
-                        // Second stage: scale up to full size
-                        withAnimation(.easeOut(duration: 0.1 * slowDown)) {
-                            stage = .fullyShown
-                        }
-                    }
-                } else {
-                    // Hide animation sequence
-                    withAnimation(.linear(duration: 0.1 * slowDown)) {
-                        // First shrink
-                        stage = .firstStage
-                    } completion: {
-                        // Then move down and fade out
-                        withAnimation(.linear(duration: 0.07 * slowDown)) {
-                            stage = .hidden
-                        } completion: {
-                            globalWindowManager.finishHidingWindow()
-                        }
-                    }
-                }
-            })
+    // Shrinks, then slides down and fades out, then orders the window out.
+    private func hide() {
+        withAnimation(.linear(duration: 0.1)) {
+            stage = .halfway
+        } completion: {
+            withAnimation(.linear(duration: 0.07)) {
+                stage = .hidden
+            } completion: {
+                globalWindowManager.finishHidingWindow()
+            }
+        }
     }
 }
