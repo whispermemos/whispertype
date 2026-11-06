@@ -25,8 +25,8 @@ final class SpectrumBarsNSView: NSView {
     private static let minimumBarHeight: CGFloat = 2
     /// Height limit of the outermost bars relative to the middle ones (0...1).
     private static let edgeDamping: CGFloat = 0.4
-    private static let attackSeconds = 0.025
-    private static let releaseSeconds = 0.13
+    private static let attackSeconds = 0.021
+    private static let releaseSeconds = 0.087
 
     /// Colors for silent and full bars, as sRGB components so blending them is cheap.
     private static let quietColor = NSColor.systemBlue.usingColorSpace(.sRGB)!
