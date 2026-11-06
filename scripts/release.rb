@@ -73,11 +73,7 @@ run("gh", "release", "create", tag, "build/release/WhisperType.dmg", "--repo", R
     "--title", "WhisperType #{tag.delete_prefix('v')}", "--generate-notes")
 run("git", "-C", SITE, "add", "appcast.xml")
 run("git", "-C", SITE, "commit", "-m", "Publish #{tag}")
+# GitHub turns on Pages by itself the first time gh-pages is pushed.
 run("git", "-C", SITE, "push", "origin", "gh-pages")
-
-unless system("gh", "api", "repos/#{REPOSITORY}/pages", out: File::NULL, err: File::NULL)
-  run("gh", "api", "--method", "POST", "repos/#{REPOSITORY}/pages",
-      "-f", "source[branch]=gh-pages", "-f", "source[path]=/")
-end
 
 puts "Published #{tag}."
