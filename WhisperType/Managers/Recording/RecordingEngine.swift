@@ -21,6 +21,8 @@ class RecordingEngine {
     private var inputDevices: InputDeviceManager
     
     var onVolumeBuffer: ((AVAudioPCMBuffer) -> Void)?
+    /// Gets the whole tap buffer, called on the audio thread.
+    var onSpectrumBuffer: ((AVAudioPCMBuffer) -> Void)?
     var onVadBuffer: ((AVAudioPCMBuffer) -> Void)?
     
     // MARK: - Lifecycle
@@ -53,6 +55,9 @@ class RecordingEngine {
             format: recordingFormat
         ) {
             [weak self] buffer, time in
+
+            // before the line below cuts the buffer down for the waves
+            self?.onSpectrumBuffer?(buffer)
 
             buffer.frameLength = AVAudioFrameCount(SoundwaveData.bufferSize)
 
