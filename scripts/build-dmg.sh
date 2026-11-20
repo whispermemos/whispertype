@@ -2,8 +2,10 @@
 
 # Builds a Developer ID-signed, notarized WhisperType.dmg for GitHub releases.
 # Archives the Release scheme, exports it for Developer ID, notarizes and staples the app,
-# then wraps it in a DMG with an Applications shortcut and notarizes and staples the DMG too.
+# then wraps it in a DMG installer window (background with arrow, app and Applications icons)
+# and notarizes and staples the DMG too. The background art lives in scripts/dmg/.
 #
+# Needs create-dmg: brew install create-dmg
 # One-time setup: store App Store Connect API key credentials for notarytool in the Keychain:
 #   xcrun notarytool store-credentials whispertype-notary --key AuthKey_XXX.p8 --key-id XXX --issuer XXX
 # Output: build/release/WhisperType.dmg
@@ -11,6 +13,8 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+
+command -v create-dmg >/dev/null || { echo "create-dmg is missing. Run: brew install create-dmg"; exit 1; }
 
 NOTARY_PROFILE="${NOTARY_PROFILE:-whispertype-notary}"
 OUT="build/release"
@@ -59,8 +63,20 @@ xcrun stapler staple "$APP"
 echo "==> Creating DMG"
 mkdir "$OUT/dmg"
 cp -R "$APP" "$OUT/dmg/"
-ln -s /Applications "$OUT/dmg/Applications"
-hdiutil create -volname WhisperType -srcfolder "$OUT/dmg" -format UDZO -ov "$DMG"
+# One TIFF holding both @1x and @2x, so the background stays sharp on Retina displays.
+tiffutil -cathidpicheck scripts/dmg/background.png scripts/dmg/background@2x.png -out "$OUT/background.tiff"
+# Icon positions match the arrow in scripts/dmg/draw-background.swift. The window is 32pt
+# taller than the 400pt background to make room for the title bar.
+create-dmg \
+    --volname WhisperType \
+    --volicon "$APP/Contents/Resources/AppIcon.icns" \
+    --background "$OUT/background.tiff" \
+    --window-size 660 432 \
+    --icon-size 128 \
+    --icon WhisperType.app 170 180 \
+    --hide-extension WhisperType.app \
+    --app-drop-link 490 180 \
+    "$DMG" "$OUT/dmg"
 codesign --sign "Developer ID Application" --timestamp "$DMG"
 
 echo "==> Notarizing DMG"

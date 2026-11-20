@@ -46,7 +46,7 @@ Swift packages resolve automatically. Voice activity detection uses [sherpa-onnx
 
 Releases use [Sparkle 2](https://sparkle-project.org/) for updates. The app reads a signed feed from [GitHub Pages](https://whispermemos.github.io/whispertype/appcast.xml) (the `gh-pages` branch) and downloads DMGs from GitHub Releases. Debug builds never start the updater. Quitting or restarting for an update waits until recording and transcription finish.
 
-The release Mac needs a Developer ID certificate, the notarization credentials described in `scripts/build-dmg.sh`, an authenticated `gh` CLI, and the Sparkle private key in the login Keychain under the `whispertype` account. Its public key is `SUPublicEDKey` in `WhisperType/Info.plist`. To move the key to another Mac, use Sparkle's `generate_keys --account whispertype -x <file>` to export and `-f <file>` to import, and keep the exported file out of the repository. Sparkle's tools are in `build/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin/` after the first build.
+The release Mac needs `create-dmg` (`brew install create-dmg`), a Developer ID certificate, the notarization credentials described in `scripts/build-dmg.sh`, an authenticated `gh` CLI, and the Sparkle private key in the login Keychain under the `whispertype` account. Its public key is `SUPublicEDKey` in `WhisperType/Info.plist`. To move the key to another Mac, use Sparkle's `generate_keys --account whispertype -x <file>` to export and `-f <file>` to import, and keep the exported file out of the repository. Sparkle's tools are in `build/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin/` after the first build.
 
 ```sh
 bundle exec fastlane mac bump_patch       # bump the version, commit and push
